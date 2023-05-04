@@ -1,13 +1,9 @@
-FROM debian:buster
+FROM alpine:3.16
 
-RUN apt-get update && \
-    apt-get install -y mariadb-server \
-    mariadb-client
+RUN apk update && apk add mariadb mariadb-client
+RUN mkdir /run/mysqld; \
+		chmod 777 /run/mysqld;
 
-RUN mkdir -p /var/run/mysqld \
-    && chown -R mysql:mysql /var/run/mysqld \
-    && chmod 777 /var/run/mysqld
+COPY ./tools/mariadb.sh .
 
-EXPOSE 3306
-
-CMD ["mysqld", "--bind-address=0.0.0.0"]
+CMD ["sh", "/mariadb.sh"]
