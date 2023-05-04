@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx
+    restart: always
+    ports:
+      - "443:443"
+    volumes:
+      - v_site:/var/www/html
+    networks:
+      - network
+
+  mariadb:
+    container_name: mariadb
+    build: ./requirements/mariadb
+    restart: always
+    volumes:
+      - v_db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: roottest
+      MYSQL_DATABASE: test
+      MYSQL_USER : test
+      MYSQL_PASSWORD: test
+    networks:
+      - network
+
+  wordpress:
+    container_name: wordpress
+    depends_on:
+      - mariadb
+    build: ./requirements/wordpress
+    restart: always
+    volumes:
+      - v_site:/var/www/html
+    environment:
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_USER: test
+      WORDPRESS_DB_PASSWORD: test
+      WORDPRESS_DB_NAME: test
+    networks:
+      - network
+
+volumes:
+  v_db:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/facolomb/data/mysql
+      o: bind
+  v_site:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/facolomb/data/www
+      o: bind
+
+networks:
+  network:
+    driver: bridge
